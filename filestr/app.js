@@ -1,7 +1,13 @@
+const express = require('express');
+
 const fs = require('fs');
 const path = require('path');
 const Parent = require('./Parent');
 const Child = require('./Child');
+
+const app = express();
+
+app.use(express.json());
 
 function getFileStructure(parent, dir) {
     var currentParent = null;
@@ -27,14 +33,14 @@ function getFileStructure(parent, dir) {
     return currentParent;
 }
 
-function print(o){
-    if(o instanceof Child){
-        console.log(o);
-    } else if(o instanceof Parent){
-        console.log(o);
-        o.children.forEach(c => print(c));
-    }
-}
+app.get('/filesystem', function(req, res){
+    const filesystem = getFileStructure(null, "root");
+    return res.status(200).json(
+        filesystem
+    );
+});
 
-const filesystem = getFileStructure(null, "root");
-print(filesystem);
+app.listen(3000, ()=> {
+    console.log("Listening on port " + 3000);
+});
+
